@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weather Forecast</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 min-h-screen py-8 px-4">
+  <div class="w-full max-w-6xl mx-auto">
+    <!-- Header -->
+    <div class="text-center mb-8">
+      <h1 class="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
+        Weather Forecast
+      </h1>
+      <p class="text-gray-600 text-lg">Get real-time weather updates for any city</p>
+    </div>
+
+    <!-- Search Form -->
+    <div class="max-w-2xl mx-auto mb-8">
+      <form method="POST" class="flex flex-col sm:flex-row gap-3">
+        <div class="flex-1 relative">
+          <input type="text" name="city" placeholder="Enter city name..." 
+                 class="w-full pl-16 pr-6 py-4 text-lg border-0 rounded-2xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-200 transition-all duration-300 bg-white/80 backdrop-blur-sm hover:shadow-xl"
+                 required>
+          <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
+            <svg class="h-6 w-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+          </div>
+        </div>
+        <button type="submit" 
+                class="px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold text-lg rounded-2xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-blue-200">
+          <span class="flex items-center gap-2">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+            Search
+          </span>
+        </button>
+      </form>
+    </div>
+
+    <!-- Error Message -->
+    {% if error %}
+      <div class="max-w-2xl mx-auto mb-8 p-6 bg-red-50 border-l-4 border-red-400 rounded-2xl shadow-lg">
+        <div class="flex items-center">
+          <svg class="h-6 w-6 text-red-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <p class="text-red-700 font-medium">{{ error }}</p>
+        </div>
+      </div>
+    {% endif %}
+
+    {% if weather %}
+    <!-- Current Weather -->
+    <div class="max-w-4xl mx-auto mb-8">
+      <div class="bg-white/80 backdrop-blur-sm p-8 rounded-3xl shadow-xl border border-white/20 hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2">
+        <div class="text-center">
+          <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">{{ weather.city }}</h2>
+          <div class="flex justify-center items-center mb-6">
+            <img src="http://openweathermap.org/img/wn/{{ weather.icon }}@2x.png" 
+                 class="w-24 h-24 drop-shadow-lg" alt="Weather Icon">
+          </div>
+          <p class="text-xl text-gray-700 mb-4">{{ weather.condition }}</p>
+          <p class="text-6xl md:text-7xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-6">
+            {{ weather.temp }}°C
+          </p>
+          <div class="flex flex-col sm:flex-row justify-center gap-6 text-gray-600">
+            <div class="flex items-center gap-2">
+              <svg class="h-5 w-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path>
+              </svg>
+              <span class="font-medium">Humidity: {{ weather.humidity }}%</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <svg class="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <span class="font-medium">Wind: {{ weather.wind }} m/s</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Forecast Cards -->
+    <div class="max-w-6xl mx-auto mb-8">
+      <h3 class="text-2xl md:text-3xl font-bold text-center text-gray-800 mb-6">5-Day Forecast</h3>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        {% for day in forecast %}
+        <div class="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transform hover:-translate-y-2 transition-all duration-300 cursor-pointer">
+          <div class="text-center">
+            <h4 class="font-bold text-gray-800 mb-3 text-lg">{{ day.date }}</h4>
+            <div class="flex justify-center mb-4">
+              <img src="http://openweathermap.org/img/wn/{{ day.icon }}@2x.png" 
+                   class="w-16 h-16 drop-shadow-md" alt="Weather Icon">
+            </div>
+            <p class="text-sm text-gray-700 mb-4 line-clamp-2">{{ day.condition }}</p>
+            <div class="space-y-2">
+              <div class="flex justify-between items-center text-sm">
+                <span class="text-blue-600 font-medium">Min:</span>
+                <span class="font-semibold">{{ day.min }}°C</span>
+              </div>
+              <div class="flex justify-between items-center text-sm">
+                <span class="text-red-600 font-medium">Max:</span>
+                <span class="font-semibold">{{ day.max }}°C</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Forecast Chart -->
+    <div class="max-w-4xl mx-auto">
+      <div class="bg-white/80 backdrop-blur-sm p-8 rounded-3xl shadow-xl border border-white/20 hover:shadow-2xl transition-all duration-500">
+        <h3 class="text-2xl md:text-3xl font-bold text-center text-gray-800 mb-6">Temperature Trend</h3>
+        <div class="bg-gray-50 rounded-2xl p-6 border-2 border-dashed border-gray-300">
+          <p class="text-center text-gray-500 text-lg">
+            📊 Temperature chart visualization would appear here
+          </p>
+          <img src="{{ url_for('static', filename='forecast.png') }}" alt="Forecast Chart" class="mx-auto rounded-xl shadow-lg">
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</body>
+</html>
