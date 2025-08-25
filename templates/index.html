@@ -20,13 +20,15 @@
     <div class="max-w-2xl mx-auto mb-8">
       <form method="POST" class="flex flex-col sm:flex-row gap-3">
         <div class="flex-1 relative">
-          <input type="text" name="city" placeholder="Enter city name..." 
+          <input type="text" name="city" id="cityInput" placeholder="Enter city name..." 
                  class="w-full pl-16 pr-6 py-4 text-lg border-0 rounded-2xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-200 transition-all duration-300 bg-white/80 backdrop-blur-sm hover:shadow-xl"
-                 required>
+                 required autocomplete="off">
           <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
             <svg class="h-6 w-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
             </svg>
+          </div>
+          <div id="autocompleteDropdown" class="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-xl border border-gray-200 max-h-60 overflow-y-auto z-20 hidden">
           </div>
         </div>
         <button type="submit" 
@@ -131,5 +133,244 @@
     </div>
     {% endif %}
   </div>
+
+  <!-- Autocomplete Script -->
+  <script>
+    // Popular cities database for autocomplete
+    const cities = [
+      // Major Indian cities
+      'Mumbai, India', 'Delhi, India', 'Bangalore, India', 'Hyderabad, India', 'Chennai, India',
+      'Kolkata, India', 'Pune, India', 'Ahmedabad, India', 'Jaipur, India', 'Surat, India',
+      'Lucknow, India', 'Kanpur, India', 'Nagpur, India', 'Indore, India', 'Thane, India',
+      'Bhopal, India', 'Visakhapatnam, India', 'Pimpri-Chinchwad, India', 'Patna, India',
+      'Vadodara, India', 'Ghaziabad, India', 'Ludhiana, India', 'Agra, India', 'Nashik, India',
+      'Faridabad, India', 'Meerut, India', 'Rajkot, India', 'Kalyan-Dombivali, India',
+      'Vasai-Virar, India', 'Varanasi, India', 'Srinagar, India', 'Aurangabad, India',
+      'Navi Mumbai, India', 'Solapur, India', 'Ranchi, India', 'Jabalpur, India',
+      'Coimbatore, India', 'Chandigarh, India', 'Guwahati, India', 'Amritsar, India',
+      'Bhubaneswar, India', 'Mysore, India', 'Jodhpur, India', 'Gurgaon, India',
+      
+      // Major US cities
+      'New York, USA', 'Los Angeles, USA', 'Chicago, USA', 'Houston, USA', 'Phoenix, USA',
+      'Philadelphia, USA', 'San Antonio, USA', 'San Diego, USA', 'Dallas, USA', 'San Jose, USA',
+      'Austin, USA', 'Jacksonville, USA', 'Fort Worth, USA', 'Columbus, USA', 'Charlotte, USA',
+      'San Francisco, USA', 'Indianapolis, USA', 'Seattle, USA', 'Denver, USA', 'Washington, USA',
+      'Boston, USA', 'El Paso, USA', 'Nashville, USA', 'Detroit, USA', 'Oklahoma City, USA',
+      'Portland, USA', 'Las Vegas, USA', 'Memphis, USA', 'Louisville, USA', 'Baltimore, USA',
+      'Milwaukee, USA', 'Albuquerque, USA', 'Tucson, USA', 'Fresno, USA', 'Sacramento, USA',
+      'Mesa, USA', 'Kansas City, USA', 'Atlanta, USA', 'Long Beach, USA', 'Colorado Springs, USA',
+      'Raleigh, USA', 'Miami, USA', 'Virginia Beach, USA', 'Omaha, USA', 'Oakland, USA',
+      'Minneapolis, USA', 'Tulsa, USA', 'Arlington, USA', 'Tampa, USA', 'New Orleans, USA',
+      'Wichita, USA', 'Cleveland, USA', 'Bakersfield, USA', 'Aurora, USA', 'Anaheim, USA',
+      'Honolulu, USA', 'Santa Ana, USA', 'Corpus Christi, USA', 'Riverside, USA', 'Lexington, USA',
+      
+      // Major European cities
+      'London, UK', 'Paris, France', 'Berlin, Germany', 'Madrid, Spain', 'Rome, Italy',
+      'Amsterdam, Netherlands', 'Brussels, Belgium', 'Vienna, Austria', 'Prague, Czech Republic',
+      'Budapest, Hungary', 'Warsaw, Poland', 'Stockholm, Sweden', 'Copenhagen, Denmark',
+      'Oslo, Norway', 'Helsinki, Finland', 'Dublin, Ireland', 'Lisbon, Portugal',
+      'Athens, Greece', 'Barcelona, Spain', 'Milan, Italy', 'Munich, Germany', 'Hamburg, Germany',
+      'Cologne, Germany', 'Frankfurt, Germany', 'Stuttgart, Germany', 'Düsseldorf, Germany',
+      'Leipzig, Germany', 'Dortmund, Germany', 'Essen, Germany', 'Bremen, Germany',
+      'Dresden, Germany', 'Hannover, Germany', 'Nuremberg, Germany', 'Duisburg, Germany',
+      'Bochum, Germany', 'Wuppertal, Germany', 'Bielefeld, Germany', 'Bonn, Germany',
+      'Mannheim, Germany', 'Karlsruhe, Germany', 'Wiesbaden, Germany', 'Münster, Germany',
+      'Gelsenkirchen, Germany', 'Aachen, Germany', 'Braunschweig, Germany', 'Chemnitz, Germany',
+      'Kiel, Germany', 'Halle, Germany', 'Magdeburg, Germany', 'Freiburg, Germany',
+      'Krefeld, Germany', 'Mainz, Germany', 'Lübeck, Germany', 'Erfurt, Germany',
+      'Rostock, Germany', 'Kassel, Germany', 'Potsdam, Germany', 'Saarbrücken, Germany',
+      
+      // Major Asian cities
+      'Tokyo, Japan', 'Delhi, India', 'Shanghai, China', 'Dhaka, Bangladesh', 'São Paulo, Brazil',
+      'Mexico City, Mexico', 'Cairo, Egypt', 'Beijing, China', 'Mumbai, India', 'Osaka, Japan',
+      'Chongqing, China', 'Istanbul, Turkey', 'Buenos Aires, Argentina', 'Kolkata, India',
+      'Kinshasa, DR Congo', 'Lagos, Nigeria', 'Manila, Philippines', 'Tianjin, China',
+      'Guangzhou, China', 'Rio de Janeiro, Brazil', 'Lima, Peru', 'Bangalore, India',
+      'Seoul, South Korea', 'Nanjing, China', 'Wuhan, China', 'Chengdu, China',
+      'Xian, China', 'Hangzhou, China', 'Dongguan, China', 'Foshan, China', 'Shenyang, China',
+      'Harbin, China', 'Jinan, China', 'Zhengzhou, China', 'Changsha, China', 'Kunming, China',
+      'Dalian, China', 'Qingdao, China', 'Ningbo, China', 'Xiamen, China', 'Fuzhou, China',
+      'Wuxi, China', 'Hefei, China', 'Nanchang, China', 'Taiyuan, China', 'Shijiazhuang, China',
+      'Luoyang, China', 'Nantong, China', 'Yantai, China', 'Huaiyin, China', 'Xuzhou, China',
+      'Suzhou, China', 'Wenzhou, China', 'Shaoxing, China', 'Jinhua, China', 'Zhuzhou, China',
+      'Jiangmen, China', 'Zhongshan, China', 'Huizhou, China', 'Dongying, China', 'Yichang, China',
+      
+      // Major Australian cities
+      'Sydney, Australia', 'Melbourne, Australia', 'Brisbane, Australia', 'Perth, Australia',
+      'Adelaide, Australia', 'Gold Coast, Australia', 'Newcastle, Australia', 'Canberra, Australia',
+      'Sunshine Coast, Australia', 'Central Coast, Australia', 'Wollongong, Australia',
+      'Hobart, Australia', 'Geelong, Australia', 'Townsville, Australia', 'Cairns, Australia',
+      'Toowoomba, Australia', 'Darwin, Australia', 'Ballarat, Australia', 'Bendigo, Australia',
+      'Albury-Wodonga, Australia', 'Mackay, Australia', 'Rockhampton, Australia',
+      'Bunbury, Australia', 'Coffs Harbour, Australia', 'Bundaberg, Australia',
+      'Wagga Wagga, Australia', 'Port Macquarie, Australia', 'Mildura, Australia',
+      'Tamworth, Australia', 'Orange, Australia', 'Dubbo, Australia', 'Bathurst, Australia',
+      'Goulburn, Australia', 'Lismore, Australia', 'Coffs Harbour, Australia', 'Port Lincoln, Australia',
+      'Whyalla, Australia', 'Mount Gambier, Australia', 'Murray Bridge, Australia',
+      'Broken Hill, Australia', 'Port Augusta, Australia', 'Port Pirie, Australia',
+      'Whyalla, Australia', 'Mount Gambier, Australia', 'Murray Bridge, Australia',
+      
+      // Major Canadian cities
+      'Toronto, Canada', 'Montreal, Canada', 'Vancouver, Canada', 'Calgary, Canada',
+      'Edmonton, Canada', 'Ottawa, Canada', 'Winnipeg, Canada', 'Quebec City, Canada',
+      'Hamilton, Canada', 'Kitchener, Canada', 'London, Canada', 'Victoria, Canada',
+      'Halifax, Canada', 'Oshawa, Canada', 'Windsor, Canada', 'Saskatoon, Canada',
+      'Regina, Canada', 'St. John\'s, Canada', 'Kelowna, Canada', 'Abbotsford, Canada',
+      'Kingston, Canada', 'Saguenay, Canada', 'Trois-Rivières, Canada', 'Guelph, Canada',
+      'Moncton, Canada', 'Brantford, Canada', 'Saint John, Canada', 'Thunder Bay, Canada',
+      'Saint John\'s, Canada', 'Peterborough, Canada', 'Sault Ste. Marie, Canada',
+      'Sudbury, Canada', 'Kingston, Canada', 'Saguenay, Canada', 'Trois-Rivières, Canada',
+      'Guelph, Canada', 'Moncton, Canada', 'Brantford, Canada', 'Saint John, Canada',
+      'Thunder Bay, Canada', 'Saint John\'s, Canada', 'Peterborough, Canada',
+      'Sault Ste. Marie, Canada', 'Sudbury, Canada', 'Kingston, Canada', 'Saguenay, Canada',
+      'Trois-Rivières, Canada', 'Guelph, Canada', 'Moncton, Canada', 'Brantford, Canada',
+      'Saint John, Canada', 'Thunder Bay, Canada', 'Saint John\'s, Canada', 'Peterborough, Canada',
+      
+      // Major African cities
+      'Cairo, Egypt', 'Lagos, Nigeria', 'Kinshasa, DR Congo', 'Luanda, Angola',
+      'Dar es Salaam, Tanzania', 'Nairobi, Kenya', 'Addis Ababa, Ethiopia', 'Casablanca, Morocco',
+      'Abidjan, Ivory Coast', 'Khartoum, Sudan', 'Accra, Ghana', 'Dakar, Senegal',
+      'Algiers, Algeria', 'Tunis, Tunisia', 'Tripoli, Libya', 'Rabat, Morocco',
+      'Bamako, Mali', 'Ouagadougou, Burkina Faso', 'Niamey, Niger', 'N\'Djamena, Chad',
+      'Bangui, Central African Republic', 'Brazzaville, Republic of Congo', 'Libreville, Gabon',
+      'Malabo, Equatorial Guinea', 'São Tomé, São Tomé and Príncipe', 'Praia, Cape Verde',
+      'Banjul, Gambia', 'Conakry, Guinea', 'Freetown, Sierra Leone', 'Monrovia, Liberia',
+      'Bissau, Guinea-Bissau', 'Dakar, Senegal', 'Banjul, Gambia', 'Conakry, Guinea',
+      'Freetown, Sierra Leone', 'Monrovia, Liberia', 'Bissau, Guinea-Bissau',
+      'Dakar, Senegal', 'Banjul, Gambia', 'Conakry, Guinea', 'Freetown, Sierra Leone',
+      'Monrovia, Liberia', 'Bissau, Guinea-Bissau', 'Dakar, Senegal', 'Banjul, Gambia',
+      'Conakry, Guinea', 'Freetown, Sierra Leone', 'Monrovia, Liberia', 'Bissau, Guinea-Bissau'
+    ];
+
+    // DOM elts
+    const cityInput = document.getElementById('cityInput');
+    const autocompleteDropdown = document.getElementById('autocompleteDropdown');
+    let selectedIndex = -1;
+
+    // Event listeners
+    cityInput.addEventListener('input', handleInput);
+    cityInput.addEventListener('keydown', handleKeydown);
+    cityInput.addEventListener('focus', handleFocus);
+    cityInput.addEventListener('blur', handleBlur);
+
+    // Handle input changes
+    function handleInput() {
+      const query = cityInput.value.trim().toLowerCase();
+      
+      if (query.length < 2) {
+        hideDropdown();
+        return;
+      }
+
+      const suggestions = cities.filter(city => 
+        city.toLowerCase().includes(query)
+      ).slice(0, 10); // Limit to 10 suggestions
+
+      if (suggestions.length > 0) {
+        showDropdown(suggestions);
+      } else {
+        hideDropdown();
+      }
+    }
+
+    // Handle keyboard navigation
+    function handleKeydown(e) {
+      const suggestions = autocompleteDropdown.querySelectorAll('.suggestion-item');
+      
+      switch(e.key) {
+        case 'ArrowDown':
+          e.preventDefault();
+          selectedIndex = Math.min(selectedIndex + 1, suggestions.length - 1);
+          updateSelection(suggestions);
+          break;
+        case 'ArrowUp':
+          e.preventDefault();
+          selectedIndex = Math.max(selectedIndex - 1, -1);
+          updateSelection(suggestions);
+          break;
+        case 'Enter':
+          e.preventDefault();
+          if (selectedIndex >= 0 && suggestions[selectedIndex]) {
+            selectCity(suggestions[selectedIndex].textContent);
+          }
+          break;
+        case 'Escape':
+          hideDropdown();
+          cityInput.blur();
+          break;
+      }
+    }
+
+    // Handle focus
+    function handleFocus() {
+      if (cityInput.value.trim().length >= 2) {
+        handleInput();
+      }
+    }
+
+    // Handle blur
+    function handleBlur() {
+      // Delay hiding to allow click events on suggestions
+      setTimeout(() => {
+        hideDropdown();
+      }, 200);
+    }
+
+    // Show dropdown with suggestions
+    function showDropdown(suggestions) {
+      autocompleteDropdown.innerHTML = '';
+      
+      suggestions.forEach((city, index) => {
+        const item = document.createElement('div');
+        item.className = 'suggestion-item px-4 py-3 hover:bg-blue-50 cursor-pointer transition-colors duration-150 border-b border-gray-100 last:border-b-0';
+        item.textContent = city;
+        item.dataset.index = index;
+        
+        item.addEventListener('click', () => selectCity(city));
+        item.addEventListener('mouseenter', () => {
+          selectedIndex = index;
+          updateSelection(suggestions);
+        });
+        
+        autocompleteDropdown.appendChild(item);
+      });
+      
+      autocompleteDropdown.classList.remove('hidden');
+      selectedIndex = -1;
+    }
+
+    // Hide dropdown
+    function hideDropdown() {
+      autocompleteDropdown.classList.add('hidden');
+      selectedIndex = -1;
+    }
+
+    // Update visual selection
+    function updateSelection(suggestions) {
+      suggestions.forEach((item, index) => {
+        if (index === selectedIndex) {
+          item.classList.add('bg-blue-100', 'text-blue-800');
+          item.classList.remove('hover:bg-blue-50');
+        } else {
+          item.classList.remove('bg-blue-100', 'text-blue-800');
+          item.classList.add('hover:bg-blue-50');
+        }
+      });
+    }
+
+    // Select a city
+    function selectCity(city) {
+      cityInput.value = city;
+      hideDropdown();
+      cityInput.focus();
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!cityInput.contains(e.target) && !autocompleteDropdown.contains(e.target)) {
+        hideDropdown();
+      }
+    });
+  </script>
 </body>
 </html>
