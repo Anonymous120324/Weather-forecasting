@@ -5,11 +5,11 @@ import matplotlib
 matplotlib.use('Agg') 
 import matplotlib.pyplot as plt
 from datetime import datetime
-
+from dotenv import load_dotenv
+load_dotenv()
 app = Flask(__name__)
 
-API_KEY = "PUSH_YOUR_API_KEY_HERE" 
-
+API_KEY = os.getenv("API_KEY")
 
 def get_weather(city):
     """Fetch current weather + 5-day forecast for a given city."""
