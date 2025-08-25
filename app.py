@@ -2,15 +2,17 @@ import os
 import requests
 from flask import Flask, render_template, request
 import matplotlib
-matplotlib.use('Agg') 
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+import io, base64
 from datetime import datetime
 from dotenv import load_dotenv
+
 load_dotenv()
 app = Flask(__name__)
 
 API_KEY = os.getenv("API_KEY")
-print(type(API_KEY))
+
 
 def get_weather(city):
     """Fetch current weather + 5-day forecast for a given city."""
@@ -22,7 +24,7 @@ def get_weather(city):
     forecast_response = requests.get(forecast_url)
 
     if weather_response.status_code != 200 or forecast_response.status_code != 200:
-        return None, None
+        return None, None, None
 
     weather_data = weather_response.json()
     forecast_data = forecast_response.json()
@@ -54,7 +56,7 @@ def get_weather(city):
             daily_dates.append(item["dt_txt"].split(" ")[0])
             daily_temps.append(item["main"]["temp"])
 
-    # Generate chart
+    # Generate chart → buffer instead of saving to static/
     plt.figure(figsize=(6, 4))
     plt.plot(daily_dates, daily_temps, marker="o", color="blue", linestyle="-")
     plt.title(f"5-Day Forecast for {current_weather['city']}")
@@ -62,29 +64,35 @@ def get_weather(city):
     plt.ylabel("Temp (°C)")
     plt.grid(True)
     plt.tight_layout()
-    plt.savefig("static/forecast.png")
+
+    buf = io.BytesIO()
+    plt.savefig(buf, format="png")
+    buf.seek(0)
     plt.close()
 
-    return current_weather, forecast_list
+    chart_base64 = base64.b64encode(buf.getvalue()).decode("utf-8")
+
+    return current_weather, forecast_list, chart_base64
 
 
 @app.route("/", methods=["GET", "POST"])
 def index():
-    city = "Chandigarh"  
+    city = "Chandigarh"
     error = None
     weather = None
     forecast = None
+    chart_data = None
 
     if request.method == "POST":
         city = request.form.get("city")
 
-    weather, forecast = get_weather(city)
+    weather, forecast, chart_data = get_weather(city)
 
     if weather is None:
         error = f"Could not find weather data for '{city}'. Please try again."
         return render_template("index.html", error=error)
 
-    return render_template("index.html", weather=weather, forecast=forecast)
+    return render_template("index.html", weather=weather, forecast=forecast, chart_data=chart_data)
 
 
 if __name__ == "__main__":

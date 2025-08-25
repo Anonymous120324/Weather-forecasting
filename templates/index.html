@@ -119,10 +119,13 @@
       <div class="bg-white/80 backdrop-blur-sm p-8 rounded-3xl shadow-xl border border-white/20 hover:shadow-2xl transition-all duration-500">
         <h3 class="text-2xl md:text-3xl font-bold text-center text-gray-800 mb-6">Temperature Trend</h3>
         <div class="bg-gray-50 rounded-2xl p-6 border-2 border-dashed border-gray-300">
-          <p class="text-center text-gray-500 text-lg">
-            📊 Temperature chart visualization would appear here
-          </p>
-          <img src="{{ url_for('static', filename='forecast.png') }}" alt="Forecast Chart" class="mx-auto rounded-xl shadow-lg">
+           {% if chart_data %}
+            <img src="data:image/png;base64,{{ chart_data }}" alt="Forecast Chart" class="mx-auto rounded-xl shadow-lg">
+            {% else %}
+              <p class="text-center text-gray-500 text-lg">
+                📊 Temperature chart visualization would appear here
+              </p>
+          {% endif %}
         </div>
       </div>
     </div>
