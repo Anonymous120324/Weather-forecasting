@@ -10,6 +10,7 @@ load_dotenv()
 app = Flask(__name__)
 
 API_KEY = os.getenv("API_KEY")
+print(type(API_KEY))
 
 def get_weather(city):
     """Fetch current weather + 5-day forecast for a given city."""
