@@ -65,7 +65,7 @@ API_KEY=your_api_key_here
 4. **Run locally**
 
 ```bash
-flask run
+python app.py
 ```
 
 Open 👉 [http://127.0.0.1:5000](http://127.0.0.1:5000) 
