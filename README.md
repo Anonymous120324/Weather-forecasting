@@ -1,4 +1,4 @@
-# Weather Forecast Web App
+# Weather Forecast Web Page
 
 A simple weather forecasting web app built with **Flask** + **OpenWeatherMap API** + **Matplotlib**.  
 It shows **current weather**, a **5-day forecast**, and a **temperature trend chart**.  
