@@ -42,7 +42,7 @@ Deployed on [Vercel](https://weather-forecasting-psi-one.vercel.app/) ✅
 
 1. **Clone the repo**
 ```bash
-git clone https://github.com/Anonymous120324/Weather-forecasting.git
+git clone https://github.com/AnonymousPtr/Weather-forecasting.git
 cd Weather-forecasting
 ````
 
