@@ -12,7 +12,6 @@ Deployed on [Vercel](https://weather-forecasting-psi-one.vercel.app/) ✅
 - 5-Day forecast (min/max temp + weather icons)  
 - Temperature trend line chart generated with Matplotlib  
 - Responsive, modern UI with TailwindCSS  
-- Deployed serverlessly on Vercel (Python runtime)  
 
 ---
 
